@@ -1,4 +1,5 @@
 import io
+import sys
 
 from pdfminer.converter import TextConverter
 from pdfminer.pdfinterp import PDFPageInterpreter
@@ -29,7 +30,7 @@ def extract_text_from_pdf(pdf_path):
 
 
 def blank_table(s_dict):
-    row = s_dict[0]+' '+s_dict[1]+' '+s_dict[2]+' '+s_dict[3]+'\n'
+    row = s_dict[0] + ' ' + s_dict[1] + ' ' + s_dict[2] + ' ' + s_dict[3] + '\n'
     print(row)
     file.write(row)
     file.write('\n')
@@ -72,22 +73,24 @@ def done_table(s_dict):
     print(row)
     file.write(row)
 
-FILE_NAME = 'example_pdf_2'
 
-pdf_dict = extract_text_from_pdf('{}.pdf'.format(FILE_NAME)).split('  ')
-print(pdf_dict)
+# FILE_NAME = 'example_pdf_2'
+for i in range(len(sys.argv)-1):
+    FILE_NAME = sys.argv[i+1]
 
-blank_info = pdf_dict[0].split(' ')
-patient_info = pdf_dict[1].split(' ')
-result_info = pdf_dict[3].split(' ')
-note_info = pdf_dict[4]
-done_info = pdf_dict[5].split(' ')
+    pdf_dict = extract_text_from_pdf('{}'.format(FILE_NAME)).split('  ')
+    print(pdf_dict)
 
+    blank_info = pdf_dict[0].split(' ')
+    patient_info = pdf_dict[1].split(' ')
+    result_info = pdf_dict[3].split(' ')
+    note_info = pdf_dict[4]
+    done_info = pdf_dict[5].split(' ')
 
-with open('{}.csv'.format(FILE_NAME), 'w') as file:
-    blank_table(blank_info)
-    patient_table(patient_info)
-    file.write(pdf_dict[2]+'\n')
-    result_table(result_info)
-    note_table(note_info)
-    done_table(done_info)
+    with open('{}.csv'.format(FILE_NAME), 'w') as file:
+        blank_table(blank_info)
+        patient_table(patient_info)
+        file.write(pdf_dict[2] + '\n')
+        result_table(result_info)
+        note_table(note_info)
+        done_table(done_info)
