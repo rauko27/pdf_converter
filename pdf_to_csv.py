@@ -1,10 +1,14 @@
 import io
 import sys
+import re
 
 from pdfminer.converter import TextConverter
 from pdfminer.pdfinterp import PDFPageInterpreter
 from pdfminer.pdfinterp import PDFResourceManager
 from pdfminer.pdfpage import PDFPage
+
+FILE_FORMAT = 'csv'
+DIST_FORMAT = ','
 
 
 def extract_text_from_pdf(pdf_path):
@@ -38,20 +42,22 @@ def blank_table(s_dict):
 
 def patient_table(s_dict):
     for i in range(0, len(s_dict) - 3, 4):
-        row = s_dict[i] + ',' + s_dict[i + 1] + ',' + s_dict[i + 2] + ',' + s_dict[i + 3] + '\n'
+        row = s_dict[i] + DIST_FORMAT + s_dict[i + 1] + DIST_FORMAT + s_dict[i + 2] + DIST_FORMAT + s_dict[i + 3] + '\n'
         print(row)
         file.write(row)
     file.write('\n')
 
 
 def result_table(s_dict):
-    header = s_dict[0] + ',' + s_dict[1] + ',' + s_dict[2] + ',' + s_dict[3] + ',' + s_dict[
-        4] + "." + s_dict[5] + '\n'
+    header = s_dict[0] + DIST_FORMAT + s_dict[1] + DIST_FORMAT + s_dict[2] + DIST_FORMAT + s_dict[3] + DIST_FORMAT + \
+             s_dict[
+                 4] + "." + s_dict[5] + '\n'
     print(header)
     file.write(header)
     for i in range(6, len(s_dict) - 3, 6):
-        row = s_dict[i] + ',' + s_dict[i + 1] + ' ' + s_dict[i + 2] + ',' + s_dict[i + 3] + ',' + \
-              s_dict[i + 4] + ',' + \
+        row = s_dict[i] + DIST_FORMAT + s_dict[i + 1] + ' ' + s_dict[i + 2] + DIST_FORMAT + s_dict[
+            i + 3] + DIST_FORMAT + \
+              s_dict[i + 4] + DIST_FORMAT + \
               s_dict[i + 5] + '\n'
         print(row)
         file.write(row)
@@ -69,17 +75,15 @@ def done_table(s_dict):
     header = s_dict[0]
     print(header)
     file.write(header)
-    row = s_dict[1] + ',' + s_dict[2]
+    row = s_dict[1] + DIST_FORMAT + s_dict[2]
     print(row)
     file.write(row)
 
 
-# FILE_NAME = 'example_pdf_2'
-for i in range(len(sys.argv)-1):
-    FILE_NAME = sys.argv[i+1]
-
-    pdf_dict = extract_text_from_pdf('{}'.format(FILE_NAME)).split('  ')
-    print(pdf_dict)
+# FILE_NAME = 'example_pdf_2.pdf'
+for i in range(len(sys.argv) - 1):
+    file_name = (re.findall(r'[\w\-&]+\.', sys.argv[i + 1]))[0]
+    pdf_dict = extract_text_from_pdf('{}pdf'.format(file_name)).split('  ')
 
     blank_info = pdf_dict[0].split(' ')
     patient_info = pdf_dict[1].split(' ')
@@ -87,7 +91,7 @@ for i in range(len(sys.argv)-1):
     note_info = pdf_dict[4]
     done_info = pdf_dict[5].split(' ')
 
-    with open('{}.csv'.format(FILE_NAME), 'w') as file:
+    with open('{}{}'.format(file_name, FILE_FORMAT), 'w') as file:
         blank_table(blank_info)
         patient_table(patient_info)
         file.write(pdf_dict[2] + '\n')
